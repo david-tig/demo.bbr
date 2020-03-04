@@ -163,17 +163,17 @@ startbbrmod(){
 }
 
 #编译并启用BBR魔改
-startbbrmod_nanqinlang(){
+startbbrmod_david(){
 	remove_all
 	if [[ "${release}" == "centos" ]]; then
 		yum install -y make gcc
 		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/bbr/centos/tcp_nanqinlang.c
-		echo "obj-m := tcp_nanqinlang.o" > Makefile
+		wget -N --no-check-certificate https://raw.githubusercontent.com/david-tig/demo.bbr/master/tcp_david.c
+		echo "obj-m := tcp_david.o" > Makefile
 		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc
-		chmod +x ./tcp_nanqinlang.ko
-		cp -rf ./tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel/net/ipv4
-		insmod tcp_nanqinlang.ko
+		chmod +x ./tcp_david.ko
+		cp -rf ./tcp_david.ko /lib/modules/$(uname -r)/kernel/net/ipv4
+		insmod tcp_david.ko
 		depmod -a
 	else
 		apt-get update
@@ -185,17 +185,17 @@ startbbrmod_nanqinlang(){
 		fi
 		apt-get -y install make gcc-4.9
 		mkdir bbrmod && cd bbrmod
-		wget -N --no-check-certificate https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master/bbr/tcp_nanqinlang.c
-		echo "obj-m := tcp_nanqinlang.o" > Makefile
+		wget -N --no-check-certificate https://raw.githubusercontent.com/david-tig/demo.bbr/master/tcp_david.c
+		echo "obj-m := tcp_david.o" > Makefile
 		make -C /lib/modules/$(uname -r)/build M=`pwd` modules CC=/usr/bin/gcc-4.9
-		install tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel
-		cp -rf ./tcp_nanqinlang.ko /lib/modules/$(uname -r)/kernel/net/ipv4
+		install tcp_david.ko /lib/modules/$(uname -r)/kernel
+		cp -rf ./tcp_david.ko /lib/modules/$(uname -r)/kernel/net/ipv4
 		depmod -a
 	fi
 	
 
 	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-	echo "net.ipv4.tcp_congestion_control=nanqinlang" >> /etc/sysctl.conf
+	echo "net.ipv4.tcp_congestion_control=david" >> /etc/sysctl.conf
 	sysctl -p
 	echo -e "${Info}魔改版BBR启动成功！"
 }
@@ -209,7 +209,7 @@ startlotserver(){
 		apt-get update
 		apt-get install ethtool
 	fi
-	bash <(wget --no-check-certificate -qO- https://github.com/MoeClub/lotServer/raw/master/Install.sh) install
+	bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/david-tig/demo.bbr/master/lotServer.sh) install
 	start_menu
 }
 
@@ -252,7 +252,7 @@ remove_all(){
 	sed -i '/net.ipv4.tcp_timestamps/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.tcp_max_orphans/d' /etc/sysctl.conf
 	if [[ -e /appex/bin/lotServer.sh ]]; then
-		bash <(wget --no-check-certificate -qO- https://github.com/MoeClub/lotServer/raw/master/Install.sh) uninstall
+		bash <(wget --no-check-certificate -qO- https://github.com/david-tig/demo.bbr/blob/master/lotServer.sh) uninstall
 	fi
 	clear
 	echo -e "${Info}:清除加速完成。"
@@ -378,7 +378,7 @@ case "$num" in
 	startbbrmod
 	;;
 	6)
-	startbbrmod_nanqinlang
+	startbbrmod_david
 	;;
 	7)
 	startbbrplus
@@ -639,9 +639,9 @@ check_status(){
 			else 
 				run_status="BBR魔改版启动失败"
 			fi
-		elif [[ ${run_status} == "nanqinlang" ]]; then
-			run_status=`lsmod | grep "nanqinlang" | awk '{print $1}'`
-			if [[ ${run_status} == "tcp_nanqinlang" ]]; then
+		elif [[ ${run_status} == "david" ]]; then
+			run_status=`lsmod | grep "david" | awk '{print $1}'`
+			if [[ ${run_status} == "tcp_david" ]]; then
 				run_status="暴力BBR魔改版启动成功"
 			else 
 				run_status="暴力BBR魔改版启动失败"
